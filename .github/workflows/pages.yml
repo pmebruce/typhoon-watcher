@@ -1,0 +1,33 @@
+name: Publish Typhoon Watcher
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/build-pages.mjs
+      - name: Download official warning RSS
+        run: |
+          curl --fail --location --retry 2 --max-time 30 https://www.cwa.gov.tw/rss/Data/cwa_warning.xml -o public/warnings.xml
+          python3 -c "import xml.etree.ElementTree as E; r=E.parse('public/warnings.xml').getroot(); assert r.tag=='rss' and r.find('channel') is not None"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - uses: actions/deploy-pages@v4
+        id: deployment

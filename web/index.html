@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="颱風觀測者：參考版型重現，含路徑時間軸、三機構路徑、縣市風雨與雨量。資料為原頁快照，非即時更新。"><title>颱風觀測者</title></head><body>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="颱風觀測者：參考版型重現，含路徑時間軸、三機構路徑、縣市風雨與雨量。開啟時讀取官方警特報與縣市停班課公告，歷史圖表另標示資料時間。"><title>颱風觀測者</title><style>#counties[hidden]{display:none!important}</style></head><body>
 
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -193,19 +193,13 @@ footer ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
 <div class="top-clock"><span>台北時間</span><time id="nowClock">--:--:--</time></div>
 <header>
   <div style="min-width:0">
-    <div class="kicker">原頁快照 · 2026 第 29 號颱風 · 國際編號 2630 · CHAMPI · 中央氣象署第 14-2 報</div>
+    <div class="kicker">官方公告 · 開啟時更新</div>
     <h1>颱風觀測者<small>TYPHOON WATCHER</small></h1>
-    <div class="pills">
-      <span class="pill warn"><i></i>海上陸上颱風警報 · 陸上警戒：臺灣各地區</span>
-      <span class="pill amber">21 縣市 23 日停班停課 · 金門照常</span>
-      <span class="pill">中度颱風 · 945 hPa</span>
-      <span class="pill">宜蘭縣超大豪雨特報</span>
-      <span class="pill amber">原頁資料時間：10/23 16:00</span>
-    </div>
+    <div class="pills" id="live-pills"><span class="pill">正在取得最新官方公告…</span></div>
   </div>
   <div class="hero-stats">
-    <div class="hs"><span class="label">原頁第 14-2 報資料時間</span><b id="cd2">--:--:--</b></div>
-    <a class="hs county-jump" href="#county-summary" aria-label="查看各縣市停班停課摘要"><span class="label">23 日停班停課 · 人事總處</span><b id="cd1">21 縣市</b><span class="jump-hint">查看縣市摘要 ↓</span></a>
+    <div class="hs"><span class="label">本次讀取時間</span><b id="cd2">讀取中</b></div>
+    <a class="hs county-jump" href="#county-summary" aria-label="查看各縣市停班停課摘要"><span class="label">停班停課 · 人事總處</span><b id="cd1">讀取中</b><span class="jump-hint">查看縣市摘要 ↓</span></a>
     
   </div>
 </header>
@@ -222,7 +216,7 @@ footer ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
   <p class="live-note"><a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">在 Windy 開啟完整地圖 ↗</a> · 若圖層空白，可改用完整地圖。<br>地圖可拖曳、縮放與播放時間軸；預報有效時間與色階以 Windy 圖內標示為準。風場、陣風與降雨為模式預報，不等同測站實測，也不是停班課判定。此地圖時間軸獨立於下方資料快照。</p>
 </section>
 <section class="live-section" aria-labelledby="official-title">
-  <div class="sec-head"><h2 id="official-title">氣象署最新警特報</h2><div class="live-tools"><span class="live-label">開啟頁面時更新 · 每 5 分鐘重查</span><button id="warnings-refresh" type="button">重新整理公告</button></div></div>
+  <div class="sec-head"><h2 id="official-title">氣象署最新警特報</h2><div class="live-tools"><span class="live-label">開啟頁面時更新</span><button id="warnings-refresh" type="button">重新整理公告</button></div></div>
   <p id="warnings-status" class="live-status" role="status" aria-live="polite">正在讀取中央氣象署公告…</p>
   <ul id="warnings-list" class="rss-list"></ul>
   <p class="live-note">來源：中央氣象署 RSS。依來源原文呈現公告標題與發布時間，點標題查看官方全文；此處為最新發布列表，不代表每一則公告目前仍有效。</p>
@@ -310,8 +304,8 @@ footer ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
       <p class="note" id="twnote" style="margin-top:8px"></p>
     </div>
     <div id="county-summary" tabindex="-1" style="display:flex;flex-direction:column;gap:10px;min-width:0">
-      <p class="note">10/23 停班停課摘要 · 人事行政總處 10/23 16:59 資料快照。<a href="https://www.dgpa.gov.tw/typh/daily/nds.html" target="_blank" rel="noopener noreferrer">查看官方最新公告 ↗</a></p>
-      <div class="counties" id="counties"></div>
+      <p class="note"><span id="closures-status">正在讀取人事總處最新公告…</span> <a href="https://www.dgpa.gov.tw/typh/daily/nds.html" target="_blank" rel="noopener noreferrer">查看官方最新公告 ↗</a></p>
+      <div class="counties" id="counties" hidden></div><div class="counties" id="live-counties"></div>
     </div>
   </div>
 </section>
@@ -577,7 +571,7 @@ document.getElementById('tl').innerHTML=TL.map(x=>`<li class="${x[2]<0?'past':x[
 function hms(ms){if(ms<=0)return '已到';const s=Math.floor(ms/1000);return `${pad(Math.floor(s/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`;}
 function tick(){const n=Date.now(),d=new Date(n+TZ);
   document.getElementById('nowClock').textContent=`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-  document.getElementById('cd2').textContent='10/23 16:00';ages();}
+  ages();}
 tick();setInterval(tick,1000);
 
 /* ================= 幾何工具 ================= */
@@ -708,9 +702,36 @@ sizeTW();
  let place='taiwan';const frame=document.getElementById('windy-map'),layer=document.getElementById('windy-layer'),model=document.getElementById('windy-model');
  function updateMap(){const v=({taiwan:{lat:23.8,lon:121,zoom:6,name:'台灣'},hsinchu:{lat:24.82,lon:121.02,zoom:9,name:'新竹周邊'},taoyuan:{lat:24.99,lon:121.30,zoom:9,name:'桃園周邊'}})[place];const p=new URLSearchParams({type:'map',location:'coordinates',metricRain:'mm',metricTemp:'°C',metricWind:'m/s',zoom:v.zoom,overlay:layer.value,product:model.value,level:'surface',lat:v.lat,lon:v.lon,detailLat:String(v.lat),detailLon:String(v.lon),marker:'true'});frame.src='https://embed.windy.com/embed.html?'+p.toString();frame.title='Windy '+v.name+' '+layer.selectedOptions[0].text+' '+model.value.toUpperCase();}
  document.querySelectorAll('.windy-place').forEach(b=>b.addEventListener('click',()=>{place=b.dataset.place;document.querySelectorAll('.windy-place').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));updateMap();}));layer.addEventListener('change',updateMap);model.addEventListener('change',updateMap);
- const button=document.getElementById('warnings-refresh'),status=document.getElementById('warnings-status'),list=document.getElementById('warnings-list');let busy=false,lastSuccess=null;
- const fmt=d=>new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
- async function refresh(){if(busy)return;busy=true;button.disabled=true;status.textContent='正在讀取中央氣象署公告…';status.classList.remove('error');try{const r=await fetch('/api/warnings',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw new Error('unavailable');const xml=new DOMParser().parseFromString(await r.text(),'application/xml');if(xml.querySelector('parsererror')||!xml.querySelector('rss channel'))throw new Error('format');const rows=[...xml.querySelectorAll('item')].map(item=>({title:item.querySelector('title')?.textContent.trim(),link:item.querySelector('link')?.textContent.trim(),date:new Date(item.querySelector('pubDate')?.textContent)})).filter(x=>{try{return x.title&&new URL(x.link).origin==='https://www.cwa.gov.tw'&&Number.isFinite(x.date.getTime());}catch{return false;}}).sort((a,b)=>b.date-a.date).slice(0,8);list.replaceChildren();for(const row of rows){const li=document.createElement('li'),a=document.createElement('a'),t=document.createElement('time');a.textContent=row.title;a.href=row.link;a.target='_blank';a.rel='noopener noreferrer';t.dateTime=row.date.toISOString();t.textContent=fmt(row.date)+' 發布';li.append(a,t);list.append(li);}lastSuccess=new Date();status.textContent='讀取成功：'+fmt(lastSuccess)+'（台灣時間）'+(rows[0]?' · 最新公告 '+fmt(rows[0].date):' · 來源目前未列出公告');}catch{status.classList.add('error');status.textContent=lastSuccess?'更新失敗；下方保留 '+fmt(lastSuccess)+' 讀取的公告，請以官方網站為準。':'目前無法取得最新公告，請使用下方官方連結查詢；原頁快照不會當作最新資料顯示。';}finally{busy=false;button.disabled=false;}}
- button.addEventListener('click',refresh);refresh();setInterval(()=>{if(!document.hidden)refresh();},300000);
+ const button=document.getElementById('warnings-refresh'),status=document.getElementById('warnings-status'),list=document.getElementById('warnings-list');
+ const fmt=d=>new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(d));
+ const endpoint='https://typhoon-watcher-live.pmebruce.workers.dev/api/live';
+ const pills=document.getElementById('live-pills'),countyStatus=document.getElementById('closures-status'),grid=document.getElementById('live-counties');
+ const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ let busy=false;
+ function pill(s){const n=document.createElement('span');n.className='pill';n.textContent=s;pills.append(n);}
+ function fail(){status.className='live-status error';status.textContent='最新資料讀取失敗，請查看官方公告。';countyStatus.textContent='最新停班課資料無法確認；請查看官方公告。';grid.replaceChildren();list.replaceChildren();pills.replaceChildren();pill('最新官方資料暫時無法確認');document.getElementById('cd1').textContent='尚未確認';document.getElementById('cd2').textContent='讀取失敗';}
+ async function refresh(){
+ if(busy)return;busy=true;button.disabled=true;status.textContent='正在讀取最新官方公告…';
+ try{
+ const r=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(25000)});if(!r.ok)throw Error('http');const d=await r.json();
+ document.getElementById('cd2').textContent=fmt(d.generatedAt);pills.replaceChildren();pill('本次讀取：'+fmt(d.generatedAt));
+ list.replaceChildren();
+ if(d.weather?.ok&&Array.isArray(d.weather.items)){
+ status.className='live-status';status.textContent='官方公告讀取成功：'+fmt(d.weather.fetchedAt)+'（台灣時間）';
+ for(const row of d.weather.items.slice(0,8)){const u=new URL(row.url);if(u.origin!=='https://www.cwa.gov.tw')continue;const li=document.createElement('li'),a=document.createElement('a'),t=document.createElement('time');a.textContent=row.title;a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';t.dateTime=row.publishedAt;t.textContent=fmt(row.publishedAt)+' 發布';li.append(a,t);list.append(li);}
+ const ty=d.weather.items.find(x=>x.title.includes('颱風警報'));pill(ty?ty.title:'颱風警報狀態請查看氣象署');
+ }else{status.className='live-status error';status.textContent='氣象署公告暫時無法讀取，請查看官方網站。';pill('氣象署最新公告尚未確認');}
+ const c=d.closures;grid.replaceChildren();
+ if(c?.ok&&Array.isArray(c.counties)&&c.counties.length===22&&c.date===today()){
+ const date=c.date.slice(5).replace('-','/');countyStatus.textContent=date+' 停班課公告摘要 · 官方更新 '+fmt(c.updatedAt)+'。';
+ document.querySelector('.county-jump .label').textContent=date+' 停班課 · 人事總處';document.getElementById('cd1').textContent='22 縣市摘要';
+ for(const row of c.counties){const card=document.createElement('div'),name=document.createElement('strong'),label=document.createElement('span');card.className='cty';name.textContent=row.name;label.className='st st-tbd';label.textContent=row.label;label.title=row.text;card.append(name,label);grid.append(card);}
+ pill(date+' 縣市摘要已更新');
+ }else{countyStatus.textContent=c?.date?'官方目前提供 '+c.date+' 資料，尚無今日完整公告；請查看官方網站。':'最新停班課資料暫時無法確認；請查看官方網站。';document.getElementById('cd1').textContent='今日尚未確認';pill('今日停班課尚未確認');}
+ }catch{fail();}finally{busy=false;button.disabled=false;}
+ }
+ button.addEventListener('click',refresh);refresh();
+ addEventListener('pageshow',e=>{if(e.persisted)refresh();});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })();
 </script></body></html>

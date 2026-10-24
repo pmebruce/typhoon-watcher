@@ -205,46 +205,28 @@ footer ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
 </header>
 
 <section class="live-section mall-section" aria-labelledby="mall-title">
-  <div class="sec-head"><h2 id="mall-title">新竹周邊賣場有開嗎？</h2><span class="live-label" id="mall-date">適用 2026/10/24</span></div>
-  <div class="mall-grid" id="mall-grid"></div>
-  <p class="live-note">依當日公告整理，營業安排可能臨時調整。個別餐廳、專櫃、影城與 KTV 請另查店家公告；未取得當日資訊時顯示「尚未確認」。</p>
+  <div class="sec-head"><h2 id="mall-title">新竹周邊賣場有開嗎？</h2><div class="live-tools"><span class="live-label" id="mall-date">開啟時重新查詢</span><button type="button" id="mall-refresh">重新查詢賣場</button></div></div>
+  <p id="mall-status" class="live-status" role="status" aria-live="polite">正在查詢當日營業公告…</p><div class="mall-grid" id="mall-grid"></div>
+  <p class="live-note">每次開啟 App 重新查詢公告，來源可能未同步最新異動。Facebook 或官網無法讀取時會註明，新聞轉述另行標示。個別專櫃、影城與 KTV 請另查店家。</p>
 </section>
 <style>
-.mall-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.mall-card{padding:18px;border:1px solid #2b485a;background:#10212d;min-width:0}.mall-card h3{font-family:inherit;font-size:19px;line-height:1.5;margin:0 0 10px;color:#e0e9ef}.mall-state{display:block;font-size:19px;font-weight:700;color:#77d2b3}.mall-state.delayed{color:#ffbb4f}.mall-state.unknown{color:#a6b7c3}.mall-card p{font-size:15px;line-height:1.65;color:#a6b7c3;margin:10px 0}.mall-card a{color:#62c6ed;font-size:15px;display:inline-block;padding:6px 0}.mall-section .sec-head{flex-wrap:wrap;gap:10px}
+.mall-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.mall-card{padding:18px;border:1px solid #2b485a;background:#10212d;min-width:0}.mall-card h3{font-family:inherit;font-size:19px;line-height:1.5;margin:0 0 10px;color:#e0e9ef}.mall-state{display:block;font-size:19px;font-weight:700;color:#77d2b3}.mall-state.delayed{color:#ffbb4f}.mall-state.closed{color:#ff807a}.mall-state.unknown{color:#a6b7c3}.mall-card p{font-size:15px;line-height:1.65;color:#a6b7c3;margin:10px 0}.mall-card a{color:#62c6ed;font-size:15px;display:inline-block;padding:6px 0}.mall-section .sec-head{flex-wrap:wrap;gap:10px}
 @media(max-width:700px){.mall-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mall-card{padding:14px}.mall-card h3,.mall-state{font-size:18px}}
 @media(max-width:360px){.mall-grid{grid-template-columns:1fr}}
 </style>
 <script>
 (function(){
-const applicable='2026-10-24';
-const news='https://udn.com/news/story/7324/9834758';
-const rows=[
-{name:'Big City 巨城',state:'正常營業',note:'部分專櫃暫停：B1 綠藤生機；1F SABON、PROMESSA；3F Relove。',source:'你提供的官方 FB 公告截圖',url:'https://page.line.me/xat.0000119818.u8n'},
-{name:'遠百竹北',state:'正常營業',note:'10/24 營業安排。',source:'當日新聞報導',url:'https://www.feds.com.tw/tw/72/MallInfo',report:news},
-{name:'享平方',state:'正常營業',note:'影城與 KTV 請另查各店公告。',source:'當日新聞報導',url:'https://www.facebook.com/shownsquare2022/',report:news},
-{name:'新竹大遠百',state:'正常營業',note:'10/24 營業安排。',source:'當日新聞報導',url:'https://www.feds.com.tw/tw/42/MallInfo',report:news},
-{name:'SOGO 新竹店',state:'14:00 開始營業',note:'延後開店。',source:'當日新聞報導',url:news,report:news,delayed:true},
-{name:'iFG 遠雄廣場新竹店',state:'14:00 開始營業',note:'延後開店。',source:'當日新聞報導',url:news,report:news,delayed:true}
-];
-function render(){
-const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-const get=t=>parts.find(x=>x.type===t).value;const day=get('year')+'-'+get('month')+'-'+get('day');const current=day===applicable;
-document.getElementById('mall-date').textContent=current?'適用 2026/10/24':'今日 '+day.replaceAll('-','/')+' · 尚待當日公告';
-const grid=document.getElementById('mall-grid');grid.replaceChildren();
-rows.forEach(row=>{
-const card=document.createElement('article');card.className='mall-card';
-const h=document.createElement('h3');h.textContent=row.name;
-const s=document.createElement('span');s.className='mall-state'+(!current?' unknown':row.delayed?' delayed':'');s.textContent=current?row.state:'今日尚未確認';
-const p=document.createElement('p');p.textContent=current?row.note:'請查看官方最新營業公告。';
-const source=document.createElement('p');source.textContent=current?'10/24 · '+row.source:'';
-const a=document.createElement('a');a.href=row.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=row.url===news?'營業報導 ↗':'官方資訊 ↗';
-card.append(h,s,p,source,a);
-if(current&&row.report&&row.url!==news){const link=document.createElement('a');link.href=row.report;link.target='_blank';link.rel='noopener noreferrer';link.textContent='報導來源 ↗';link.style.marginLeft='12px';card.append(link);}
-grid.append(card);
-});
-}
-render();addEventListener('pageshow',render);document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
+ const stores=[['bigcity','Big City 巨城','https://www.febigcity.com/'],['zhubei','遠百竹北','https://www.feds.com.tw/tw/72/Event/List'],['shown','享平方','https://www.facebook.com/shownsquare2022/'],['feds','新竹大遠百','https://www.feds.com.tw/tw/42/Event/List'],['sogo','SOGO 新竹店','https://www.sogo.com.tw/'],['ifg','iFG 遠雄廣場新竹店','https://www.ifg.com.tw/']];
+ const grid=document.getElementById('mall-grid'),status=document.getElementById('mall-status'),date=document.getElementById('mall-date'),button=document.getElementById('mall-refresh');let busy=false;
+ const fmt=v=>new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v));
+ function link(label,url){const a=document.createElement('a');a.textContent=label;a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;}
+ function render(items=[],loading=false){grid.replaceChildren();for(const [id,name,url] of stores){const row=items.find(x=>x.id===id),card=document.createElement('article'),h=document.createElement('h3'),state=document.createElement('span'),note=document.createElement('p'),source=document.createElement('p');card.className='mall-card';h.textContent=name;state.className='mall-state'+(!row?.ok?' unknown':row.kind==='delayed'?' delayed':row.kind==='closed'?' closed':'');state.textContent=loading?'正在查詢…':row?.state||'本次無法確認';note.textContent=loading?'正在重新讀取公告。':row?.note||'請查看官方最新公告。';source.textContent=row?.ok?(row.date.replaceAll('-','/')+' · '+(row.sourceType==='official'?'官方公告':'新聞轉述')+(row.publishedAt?' · 發布 '+fmt(row.publishedAt):'')):'';card.append(h,state,note,source,link('官方資訊 ↗',url));if(row?.ok&&row.sourceUrl){try{const u=new URL(row.sourceUrl);const allowed=['www.febigcity.com','www.feds.com.tw','www.facebook.com','www.sogo.com.tw','www.ifg.com.tw','udn.com'];if(u.protocol==='https:'&&allowed.includes(u.hostname)){const a=link('本次來源 ↗',u.href);a.style.marginLeft='12px';card.append(a);}}catch{}}grid.append(card);}}
+ async function refresh(){if(busy)return;busy=true;button.disabled=true;date.textContent='開啟時重新查詢';status.textContent='正在查詢 6 家賣場的當日公告…';status.className='live-status';render([],true);try{
+  const r=await fetch('https://typhoon-watcher-live.pmebruce.workers.dev/api/malls?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(35000)});if(!r.ok)throw Error('http');const d=await r.json();const age=Date.now()-Date.parse(d.checkedAt);if(!Number.isFinite(age)||age>300000||age< -300000||!Array.isArray(d.items)||d.items.length!==stores.length||new Set(d.items.map(x=>x.id)).size!==stores.length||!stores.every(x=>d.items.some(r=>r.id===x[0])))throw Error('format');render(d.items);date.textContent='查詢 '+fmt(d.checkedAt);const confirmed=d.items.filter(x=>x.ok).length;status.textContent='本次重新查詢 '+fmt(d.checkedAt)+' · '+confirmed+'/6 家取得當日資訊'+(confirmed<6?'，其餘請查看官方公告。':'。')+' 查詢時間與公告發布時間不同；新聞轉述可能晚於官方異動。';
+ }catch{render();date.textContent='本次查詢未完成';status.className='live-status error';status.textContent='無法取得當日營業資訊，請開啟各店官方連結；未沿用先前營業狀態。';}finally{busy=false;button.disabled=false;}}
+ button.addEventListener('click',refresh);refresh();addEventListener('pageshow',e=>{if(e.persisted)refresh();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })();
+
 </script>
 
 <section class="live-section" aria-labelledby="windy-title">

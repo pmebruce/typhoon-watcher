@@ -203,6 +203,50 @@ footer ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
     
   </div>
 </header>
+
+<section class="live-section mall-section" aria-labelledby="mall-title">
+  <div class="sec-head"><h2 id="mall-title">新竹周邊賣場有開嗎？</h2><span class="live-label" id="mall-date">適用 2026/10/24</span></div>
+  <div class="mall-grid" id="mall-grid"></div>
+  <p class="live-note">依當日公告整理，營業安排可能臨時調整。個別餐廳、專櫃、影城與 KTV 請另查店家公告；未取得當日資訊時顯示「尚未確認」。</p>
+</section>
+<style>
+.mall-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.mall-card{padding:18px;border:1px solid #2b485a;background:#10212d;min-width:0}.mall-card h3{font-family:inherit;font-size:19px;line-height:1.5;margin:0 0 10px;color:#e0e9ef}.mall-state{display:block;font-size:19px;font-weight:700;color:#77d2b3}.mall-state.delayed{color:#ffbb4f}.mall-state.unknown{color:#a6b7c3}.mall-card p{font-size:15px;line-height:1.65;color:#a6b7c3;margin:10px 0}.mall-card a{color:#62c6ed;font-size:15px;display:inline-block;padding:6px 0}.mall-section .sec-head{flex-wrap:wrap;gap:10px}
+@media(max-width:700px){.mall-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mall-card{padding:14px}.mall-card h3,.mall-state{font-size:18px}}
+@media(max-width:360px){.mall-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+const applicable='2026-10-24';
+const news='https://udn.com/news/story/7324/9834758';
+const rows=[
+{name:'Big City 巨城',state:'正常營業',note:'部分專櫃暫停：B1 綠藤生機；1F SABON、PROMESSA；3F Relove。',source:'你提供的官方 FB 公告截圖',url:'https://page.line.me/xat.0000119818.u8n'},
+{name:'遠百竹北',state:'正常營業',note:'10/24 營業安排。',source:'當日新聞報導',url:'https://www.feds.com.tw/tw/72/MallInfo',report:news},
+{name:'享平方',state:'正常營業',note:'影城與 KTV 請另查各店公告。',source:'當日新聞報導',url:'https://www.facebook.com/shownsquare2022/',report:news},
+{name:'新竹大遠百',state:'正常營業',note:'10/24 營業安排。',source:'當日新聞報導',url:'https://www.feds.com.tw/tw/42/MallInfo',report:news},
+{name:'SOGO 新竹店',state:'14:00 開始營業',note:'延後開店。',source:'當日新聞報導',url:news,report:news,delayed:true},
+{name:'iFG 遠雄廣場新竹店',state:'14:00 開始營業',note:'延後開店。',source:'當日新聞報導',url:news,report:news,delayed:true}
+];
+function render(){
+const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+const get=t=>parts.find(x=>x.type===t).value;const day=get('year')+'-'+get('month')+'-'+get('day');const current=day===applicable;
+document.getElementById('mall-date').textContent=current?'適用 2026/10/24':'今日 '+day.replaceAll('-','/')+' · 尚待當日公告';
+const grid=document.getElementById('mall-grid');grid.replaceChildren();
+rows.forEach(row=>{
+const card=document.createElement('article');card.className='mall-card';
+const h=document.createElement('h3');h.textContent=row.name;
+const s=document.createElement('span');s.className='mall-state'+(!current?' unknown':row.delayed?' delayed':'');s.textContent=current?row.state:'今日尚未確認';
+const p=document.createElement('p');p.textContent=current?row.note:'請查看官方最新營業公告。';
+const source=document.createElement('p');source.textContent=current?'10/24 · '+row.source:'';
+const a=document.createElement('a');a.href=row.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=row.url===news?'營業報導 ↗':'官方資訊 ↗';
+card.append(h,s,p,source,a);
+if(current&&row.report&&row.url!==news){const link=document.createElement('a');link.href=row.report;link.target='_blank';link.rel='noopener noreferrer';link.textContent='報導來源 ↗';link.style.marginLeft='12px';card.append(link);}
+grid.append(card);
+});
+}
+render();addEventListener('pageshow',render);document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
+})();
+</script>
+
 <section class="live-section" aria-labelledby="windy-title">
   <div class="sec-head"><h2 id="windy-title">Windy 動態天氣</h2><span class="live-label">官方嵌入地圖</span></div>
   <div class="live-tools" id="windy-controls">

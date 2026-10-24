@@ -4,3 +4,6 @@ const handler=await readFile(new URL('../worker/handler.js',import.meta.url),'ut
 await writeFile(new URL('../worker/index.js',import.meta.url),'const PAGE='+JSON.stringify(html)+';\n'+handler);
 
 await writeFile(new URL('../worker/page.js',import.meta.url),'export default '+JSON.stringify(html)+';\n');
+
+const icons=await readFile(new URL('../web/icons.json',import.meta.url),'utf8');
+await writeFile(new URL('../worker/icons.js',import.meta.url),'export default '+icons+';\n');
